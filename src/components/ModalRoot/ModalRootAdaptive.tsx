@@ -10,6 +10,9 @@ import {
   AdaptivityContextInterface,
   AdaptivityProps,
 } from "../AdaptivityProvider/AdaptivityContext";
+import { useScroll } from "../AppRoot/ScrollContext";
+import { useIsomorphicLayoutEffect } from "../../lib/useIsomorphicLayoutEffect";
+import { noop } from "../../lib/utils";
 
 export interface ModalRootProps extends AdaptivityProps {
   activeModal?: string | null;
@@ -42,6 +45,15 @@ const ModalRootComponent: React.FC<
   const isDesktop =
     viewWidth >= ViewWidth.SMALL_TABLET &&
     (hasMouse || viewHeight >= ViewHeight.MEDIUM);
+
+  const { enableScrollLock, disableScrollLock } = useScroll();
+  useIsomorphicLayoutEffect(() => {
+    if (!props.activeModal) {
+      return noop;
+    }
+    enableScrollLock();
+    return () => disableScrollLock();
+  }, [enableScrollLock, disableScrollLock, props.activeModal]);
 
   const RootComponent = isDesktop ? ModalRootDesktop : ModalRootTouch;
 
