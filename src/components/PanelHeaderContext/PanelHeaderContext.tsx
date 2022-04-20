@@ -9,6 +9,8 @@ import { useIsomorphicLayoutEffect } from "../../lib/useIsomorphicLayoutEffect";
 import { useGlobalEventListener } from "../../hooks/useGlobalEventListener";
 import { useTimeout } from "../../hooks/useTimeout";
 import { usePlatform } from "../../hooks/usePlatform";
+import { useScroll } from "../AppRoot/ScrollContext";
+import { noop } from "../../lib/utils";
 import "./PanelHeaderContext.css";
 
 export interface PanelHeaderContextProps
@@ -34,6 +36,15 @@ export const PanelHeaderContext: React.FC<PanelHeaderContextProps> = ({
   useIsomorphicLayoutEffect(() => {
     opened && setVisible(true);
   }, [opened]);
+
+  const { enableScrollLock, disableScrollLock } = useScroll();
+  useIsomorphicLayoutEffect(() => {
+    if (isDesktop || !opened) {
+      return noop;
+    }
+    enableScrollLock();
+    return () => disableScrollLock();
+  }, [enableScrollLock, disableScrollLock, isDesktop, opened]);
 
   // start closing on outer click
   useGlobalEventListener(
