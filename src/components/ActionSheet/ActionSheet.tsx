@@ -13,6 +13,8 @@ import { useAdaptivity } from "../../hooks/useAdaptivity";
 import { useObjectMemo } from "../../hooks/useObjectMemo";
 import { warnOnce } from "../../lib/warnOnce";
 import { SharedDropdownProps, PopupDirection, ToggleRef } from "./types";
+import { useIsomorphicLayoutEffect } from "../../lib/useIsomorphicLayoutEffect";
+import { useScroll } from "../AppRoot/ScrollContext";
 import "./ActionSheet.css";
 
 export interface ActionSheetProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -68,6 +70,15 @@ export const ActionSheet: React.FC<ActionSheetProps> = ({
   const isDesktop =
     viewWidth >= ViewWidth.SMALL_TABLET &&
     (hasMouse || viewHeight >= ViewHeight.MEDIUM);
+
+  const { enableScrollLock, disableScrollLock } = useScroll();
+  useIsomorphicLayoutEffect(() => {
+    if (isDesktop) {
+      return noop;
+    }
+    enableScrollLock();
+    return () => disableScrollLock();
+  }, [enableScrollLock, disableScrollLock, isDesktop]);
 
   let timeout = platform === IOS ? 300 : 200;
 
