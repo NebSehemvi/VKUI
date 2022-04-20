@@ -3,6 +3,8 @@ import Spinner, { SpinnerProps } from "../Spinner/Spinner";
 import { PopoutWrapper } from "../PopoutWrapper/PopoutWrapper";
 import { getClassName } from "../../helpers/getClassName";
 import { usePlatform } from "../../hooks/usePlatform";
+import { useScroll } from "../AppRoot/ScrollContext";
+import { useIsomorphicLayoutEffect } from "../../lib/useIsomorphicLayoutEffect";
 import "./ScreenSpinner.css";
 
 export type ScreenSpinnerProps = React.HTMLAttributes<HTMLDivElement> &
@@ -13,6 +15,12 @@ const ScreenSpinner: React.FC<ScreenSpinnerProps> = (
 ) => {
   const { style, className, ...restProps } = props;
   const platform = usePlatform();
+
+  const { enableScrollLock, disableScrollLock } = useScroll();
+  useIsomorphicLayoutEffect(() => {
+    enableScrollLock();
+    return () => disableScrollLock();
+  }, [enableScrollLock, disableScrollLock]);
 
   return (
     <PopoutWrapper
